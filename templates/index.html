@@ -11,10 +11,23 @@
 
 
 {% block content %}
-<h2 class="text-center">
-    {{ wtf.quick_form(form) }}
-</h2>
-<div class="container text-center"></div>
+<div class="text-center">
+    <p>Dimensions:</p>
+    <p>
+        n: <input class="width-low" type="number" id="n">
+        m: <input class="width-low" type="number" id="m">
+    </p>
+    <p>
+        <button type="button" class="btn btn-success" id="dims">Set</button>
+    </p>
+</div>
+<p>
+    <div class="container text-center" id="iboard"></div>
+</p>
+<p class="text-center"><button type="button" class="btn btn-success" id="new_state">Submit</button></p>
+<p>
+    <div class="container text-center" id="board"></div>
+</p>
 <p class="text-center"><button type="button" class="btn btn-success" id="nextgen">Next Generation</button></p>
 {% endblock %}
 
@@ -24,11 +37,9 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 <script type="text/javascript">
-        var n = {{n}};
-        var m = {{m}};
-        {% if state %}
-        var state = {{state}};
-        {% endif %}
+        var n = 8;
+        var m = 8;
+        var state = BigInt(0);
     </script>
     <script type="text/javascript" src="static/js/field.js"></script>
 {% endblock %}

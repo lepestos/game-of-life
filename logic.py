@@ -16,22 +16,30 @@ class Game:
         return '\n'.join(''.join('X' if s is True else '.' for s in row) for row in self.state)
 
     @classmethod
-    def from_str(cls, str_state: str):
-        cls.validate_str_state(str_state)
-        state = [[s == 'X' for s in row]
-                 for row in str_state.split('\n')]
+    def from_str(cls, str_state: str, alive: str='X',
+                 dead: str='.', sep: str = '\n'):
+        cls.validate_str_state(str_state, alive, dead, sep)
+        state = [[s == alive for s in row]
+                 for row in str_state.split(sep)]
+        return cls(state)
+
+    @classmethod
+    def from_number(cls, number: int, n: int, m: int):
+        state = [[number & (1 << (i*m + j)) > 0 for j in range(m)] for i in range(n)]
         return cls(state)
 
     @staticmethod
-    def validate_str_state(state: str):
-        rows = state.split('\n')
+    def validate_str_state(state: str, alive: str, dead: str, sep: str):
+        rows = state.split(sep)
         l = len(rows[0])
+        if alive == dead:
+            raise ValueError("Characters for dead and alive cells must be different")
         for row in rows:
             if len(row) != l:
                 raise ValueError("The field is not rectangular")
             for char in row:
-                if char not in 'X.':
-                    raise ValueError(f"Cannot read {char}: only 'X' and '.' are allowed")
+                if char not in [alive, dead]:
+                    raise ValueError(f"Cannot read {char}: only '{alive}' and '{dead}' are allowed")
 
     def next_state(self):
         res = [[False for _ in range(self.m)] for _ in range(self.n)]
@@ -52,12 +60,9 @@ class Game:
 
     def binary_state(self) -> int:
         b = 0
-        for row in self.state:
-            for x in row:
-                b += x
-                b <<= 1
-        else:
-            b >>= 1
+        for i, row in enumerate(self.state):
+            for j, x in enumerate(row):
+                b += (x << (i * self.m + j))
         return b
 
     def cache_state(self):

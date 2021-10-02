@@ -1,0 +1,23 @@
+.container {
+    width: 250px;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin: auto;
+    border: 1px solid black;
+    padding: 0;
+}
+
+.square {
+    min-height: 30px;
+    width: 30px;
+}
+
+.black {
+    background-color: #000000;
+}
+
+.white {
+    background-color: #ffffff;
+}

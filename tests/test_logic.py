@@ -138,3 +138,9 @@ class GameTestCase(unittest.TestCase):
         game = Game(12345, 5, 6)
         self.assertEqual(game.state, 12345)
         self.assertEqual((5, 6), (game.n, game.m))
+
+    def test_to_json(self):
+        for field in [self.field1, self.field2, self.field3]:
+            game = Game.from_boolean_matrix(field)
+            game_json = game.to_json()
+            self.assertEqual(Game.from_json(game_json), game)

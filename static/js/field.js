@@ -4,6 +4,8 @@ $(document).ready(function () {
     var nextgen = $('#nextgen');
     var new_state = $('#new_state')
     var dims = $('#dims')
+    var play = $('#play')
+    var stop = $('#stop')
     var color;
     makeGrid(n, m, state);
     makeInteractiveGrid(n, m, state);
@@ -24,7 +26,7 @@ $(document).ready(function () {
         iboard.css("width", m * 30+2);
         for (var i = 0; i < n; i++) {
             for (var j = 0; j < m; j++){
-                color = 'white';
+                color = chooseColor(i, j, state);
                 makeSquare(iboard, color, i*m + j);
                 $("#sq" + (i*m + j)).click(function(event){
                     $('#' + (event.target.id)).toggleClass('white black')
@@ -51,16 +53,19 @@ $(document).ready(function () {
         return 'white'
     }
 
-    nextgen.click(function(){
+    function nextGen(){
         $.getJSON($SCRIPT_ROOT + '/_next_state',{state: state, n: n, m: m, nxt: 1},
             function(data){
                 var next_state = BigInt(data.state);
                 makeGrid(n, m, next_state);
                 state = next_state;
             })
-    });
+    }
+
+    nextgen.click(nextGen);
 
     new_state.click(function(){
+        console.log('hi')
         var new_state = 0n;
         var i = 0n;
         var val;
@@ -80,9 +85,20 @@ $(document).ready(function () {
     dims.click(function(){
         n = $('#n').val();
         m = $('#m').val();
+        state = 0n;
         makeInteractiveGrid(n, m);
         makeGrid(n, m, state)
     });
 
+    play.click(function(){
+        var intervalId = setInterval(nextGen, 1000);
+        play.css("display", "none");
+        stop.css("display","inline-block");
+        stop.click(function(){
+            clearInterval(intervalId);
+            stop.css("display", "none");
+            play.css("display","inline-block");
+        });
+    });
 
 })

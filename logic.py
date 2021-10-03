@@ -1,6 +1,8 @@
 from itertools import product
+import json
 from typing import List
 
+decoder = json.JSONDecoder()
 
 class Game:
     def __init__(self, state, n, m):
@@ -14,6 +16,24 @@ class Game:
     def __repr__(self):
         bm = self.boolean_matrix
         return '\n'.join(''.join('X' if s is True else '.' for s in row) for row in bm)
+
+    def __eq__(self, other):
+        for key in self.__dict__.keys():
+            if getattr(self, key) != getattr(other, key):
+                return False
+        return True
+
+    def to_json(self):
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True)
+
+    @classmethod
+    def from_json(cls, json_string: str):
+        attrs = decoder.decode(json_string)
+        game = Game(attrs['state'], attrs['n'], attrs['m'])
+        game.cache = attrs['cache']
+        game.step = attrs['step']
+        return game
 
     @classmethod
     def from_str(cls, str_state: str, alive: str='X',

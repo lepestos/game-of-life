@@ -14,7 +14,18 @@ app.secret_key = os.environ.get('SECRET_KEY', 'dev')
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
-    return render_template("index.html")
+    game_json = session.get('game')
+    state = None
+    n = None
+    m = None
+    if game_json is not None:
+        game = Game.from_json(game_json)
+        state = game.state
+        n = game.n
+        m = game.m
+    return render_template("index.html", state=str(state),
+                           n=n, m=m)
+
 
 @app.route('/_next_state')
 def get_next_state():
@@ -25,4 +36,5 @@ def get_next_state():
     game = Game(int(state), int(n), int(m))
     if int(nxt):
         game.next_state()
+    session['game'] = game.to_json()
     return jsonify(n=game.n, m=game.m, state=str(game.state))

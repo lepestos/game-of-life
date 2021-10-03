@@ -6,7 +6,10 @@ $(document).ready(function () {
     var dims = $('#dims')
     var play = $('#play')
     var stop = $('#stop')
+    var slowdown = $('#slowdown')
+    var speedup = $('#speedup')
     var color;
+    var updateInterval = 1000;
     makeGrid(n, m, state);
     makeInteractiveGrid(n, m, state);
 
@@ -65,7 +68,6 @@ $(document).ready(function () {
     nextgen.click(nextGen);
 
     new_state.click(function(){
-        console.log('hi')
         var new_state = 0n;
         var i = 0n;
         var val;
@@ -91,14 +93,37 @@ $(document).ready(function () {
     });
 
     play.click(function(){
-        var intervalId = setInterval(nextGen, 1000);
+        var intervalId = setInterval(nextGen, updateInterval);
         play.css("display", "none");
         stop.css("display","inline-block");
+        slowdown.css("display","inline-block");
+        speedup.css("display","inline-block");
+
         stop.click(function(){
             clearInterval(intervalId);
             stop.css("display", "none");
+            slowdown.css("display", "none");
+            speedup.css("display", "none");
             play.css("display","inline-block");
         });
+
+        slowdown.click(function () {
+            if (updateInterval < 10000) {
+                updateInterval *= 2;
+                clearInterval(intervalId);
+                intervalId = setInterval(nextGen, updateInterval);
+            }
+        });
+
+        speedup.click(function () {
+            if (updateInterval > 600) {
+                updateInterval /= 2;
+                clearInterval(intervalId);
+                intervalId = setInterval(nextGen, updateInterval);
+            }
+        })
     });
+
+
 
 })

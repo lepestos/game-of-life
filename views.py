@@ -22,8 +22,7 @@ def get_next_state():
     m = request.args.get('m')
     state = request.args.get('state')
     nxt = request.args.get('nxt')
-    game = Game.from_number(int(state), int(n), int(m))
+    game = Game(int(state), int(n), int(m))
     if int(nxt):
         game.next_state()
-    print(game.binary_state())
-    return jsonify(n=game.n, m=game.m, state=str(game.binary_state()))
+    return jsonify(n=game.n, m=game.m, state=str(game.state))

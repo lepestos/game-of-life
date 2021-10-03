@@ -1,19 +1,19 @@
-from copy import deepcopy
 from itertools import product
 from typing import List
 
 
 class Game:
-    def __init__(self, initial_state: List[List[bool]]):
-        self.state = deepcopy(initial_state)
+    def __init__(self, state, n, m):
+        self.state = state
+        self.n = n
+        self.m = m
         self.step = 0
-        self.n = len(self.state)
-        self.m = len(self.state[0])
         self.cache = []
         self.cache_state()
 
     def __repr__(self):
-        return '\n'.join(''.join('X' if s is True else '.' for s in row) for row in self.state)
+        bm = self.boolean_matrix
+        return '\n'.join(''.join('X' if s is True else '.' for s in row) for row in bm)
 
     @classmethod
     def from_str(cls, str_state: str, alive: str='X',
@@ -21,12 +21,22 @@ class Game:
         cls.validate_str_state(str_state, alive, dead, sep)
         state = [[s == alive for s in row]
                  for row in str_state.split(sep)]
-        return cls(state)
+        return cls.from_boolean_matrix(state)
 
     @classmethod
-    def from_number(cls, number: int, n: int, m: int):
-        state = [[number & (1 << (i*m + j)) > 0 for j in range(m)] for i in range(n)]
-        return cls(state)
+    def from_boolean_matrix(cls, matrix: List[List[bool]]):
+        b = 0
+        n = len(matrix)
+        m = len(matrix[0])
+        for i, row in enumerate(matrix):
+            for j, x in enumerate(row):
+                b += (x << (i * m + j))
+        return cls(b, n, m)
+
+    @property
+    def boolean_matrix(self):
+        return [[self.state & (1 << (i*self.m + j)) > 0
+                 for j in range(self.m)] for i in range(self.n)]
 
     @staticmethod
     def validate_str_state(state: str, alive: str, dead: str, sep: str):
@@ -42,28 +52,26 @@ class Game:
                     raise ValueError(f"Cannot read {char}: only '{alive}' and '{dead}' are allowed")
 
     def next_state(self):
-        res = [[False for _ in range(self.m)] for _ in range(self.n)]
+        res = 0
         for i in range(self.n):
             for j in range(self.m):
-                if self.state[i][j]:
-                    res[i][j] = self.living_neighbours(i, j) in {2, 3}
+                if self.state & (1 << (i * self.m + j)):
+                    res += ((1 << (i * self.m + j))
+                            * (self.living_neighbours(i, j) in {2, 3}))
                 else:
-                    res[i][j] = self.living_neighbours(i, j) == 3
+                    res += ((1 << (i * self.m + j))
+                            * (self.living_neighbours(i, j) == 3))
         self.state = res
         self.step += 1
         self.cache_state()
 
     def living_neighbours(self, i: int, j: int) -> int:
-        return sum(self.state[(i + x) % self.n][(j + y) % self.m]
+        mask = sum(1 << (((i + x) % self.n) * self.m + ((j + y) % self.m))
                    for x, y in product(range(-1, 2), range(-1, 2))
                    if (x, y) != (0, 0))
+        neighbours = self.state & mask
+        return sum(neighbours & (1 << k) > 0 for k in range(self.n * self.m))
 
-    def binary_state(self) -> int:
-        b = 0
-        for i, row in enumerate(self.state):
-            for j, x in enumerate(row):
-                b += (x << (i * self.m + j))
-        return b
 
     def cache_state(self):
-        self.cache.append(self.binary_state())
+        self.cache.append(self.state)

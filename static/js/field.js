@@ -10,6 +10,7 @@ $(document).ready(function () {
     var speedup = $('#speedup')
     var color;
     var updateInterval = 1000;
+
     makeGrid(n, m, state);
     makeInteractiveGrid(n, m, state);
 
@@ -25,18 +26,17 @@ $(document).ready(function () {
     }
 
     function makeInteractiveGrid(n, m){
-        iboard.html('')
+        iboard.html('');
         iboard.css("width", m * 30+2);
         for (var i = 0; i < n; i++) {
             for (var j = 0; j < m; j++){
                 color = chooseColor(i, j, state);
                 makeSquare(iboard, color, i*m + j);
                 $("#sq" + (i*m + j)).click(function(event){
-                    $('#' + (event.target.id)).toggleClass('white black')
+                    $('#' + (event.target.id)).toggleClass('white black');
                 });
             }
         }
-
     }
 
     function makeSquare(element, color, id=null) {
